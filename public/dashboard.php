@@ -1,4 +1,8 @@
-<!DOCTYPE html>
+<?php
+
+require 'src/auth.php';
+require_login();
+
 <html lang="en">
 <head>
     <meta charset="UTC-8">

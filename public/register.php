@@ -32,7 +32,7 @@
     <div class="container">
     <h1>Register</h1>
         <div class="form__container">
-        <form action="create-user.php" method="post">
+        <form action="register_user.php" method="post">
             <div>
                 <h3>Your Information</h3>
                 <div>
@@ -63,7 +63,6 @@
         </form>
         </div>
     </div>
-</body>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const navbarToggle = document.getElementById('navbarToggle');
@@ -80,4 +79,5 @@
         }
     });
 </script>
+</body>
 </html>

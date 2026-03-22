@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+<?php
+
 <html lang="en">
 <head>
     <meta charset="UTC-8">
@@ -32,7 +33,7 @@
     <div class="container">
     <h1>Login Page</h1>
         <div class="form__container">
-        <form action="auth.php" method="post">
+        <form method="POST" action="/login_handler.php">
             <div>
                 <label for="username">Username:</label>
                 <input type="text" id="username" name="username" required>
@@ -45,11 +46,10 @@
         </form>
         <div>
             <a href="register.php">Register</a>
-            <a href="forgot-password.php">Forgot Password</a>
+            <a href="forgot_password.php">Forgot Password</a>
         </div>
         </div>
     </div>
-</body>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const navbarToggle = document.getElementById('navbarToggle');
@@ -66,4 +66,5 @@
         }
     });
 </script>
+</body>
 </html>
