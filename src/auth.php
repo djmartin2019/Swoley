@@ -7,10 +7,10 @@ function start_session() {
 }
 
 function login($user) {
-    start_sessions();
+    start_session();
 
     // Regenerate session ID to prevent fixation
-    session_regenerate_id(true)
+    session_regenerate_id(true);
 
     $_SESSION['user_id'] = $user['id'];
     $_SESSION['user_email'] = $user['email'];
@@ -21,7 +21,7 @@ function logout() {
 
     $_SESSION = [];
 
-    session_destory();
+    session_destroy();
 }
 
 function is_logged_in() {

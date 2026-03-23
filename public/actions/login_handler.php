@@ -1,12 +1,12 @@
 <?php
 
-require 'src/db.php';
-require 'src/auth.php';
+require __DIR__ . '/../../src/db.php';
+require __DIR__ . '/../../src/auth.php';
 
-$email = $_POST['email'];
+$email = $_POST['username'];
 $password = $_POST['password'];
 
-$stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
+$stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
 $stmt->execute([$email]);
 $user = $stmt->fetch();
 

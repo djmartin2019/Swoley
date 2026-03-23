@@ -1,7 +1,7 @@
-<?php
+<?php session_start();
 
-require 'src/db.php';
-require 'src/auth.php';
+require __DIR__ . '/../../src/db.php';
+require __DIR__ . '/../../src/auth.php';
 
 $username = $_POST['username'];
 $email = $_POST['email'];
