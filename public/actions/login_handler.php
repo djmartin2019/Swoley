@@ -3,11 +3,15 @@
 require __DIR__ . '/../../src/db.php';
 require __DIR__ . '/../../src/auth.php';
 
-$email = $_POST['username'];
+$username = $_POST['username'];
 $password = $_POST['password'];
 
-$stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
-$stmt->execute([$email]);
+if (empty($username) || empty($password)) {
+    die("All fields required");
+}
+
+$stmt = $pdo->prepare("SELECT * FROM users WHERE username = :username");
+$stmt->execute(['username' => $username]);
 $user = $stmt->fetch();
 
 if ($user && password_verify($password, $user['password_hash'])) {

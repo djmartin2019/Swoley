@@ -5,17 +5,23 @@ require __DIR__ . '/../../src/auth.php';
 
 $username = $_POST['username'];
 $email = $_POST['email'];
+$firstName = $_POST['first_name'];
+$lastName = $_POST['last_name'];
 $password = $_POST['password'];
+
+if (empty($username) || empty($email) || empty($password)) {
+    die("Username, email, and password are required")
+}
 
 $password_hash = password_hash($password, PASSWORD_DEFAULT);
 
 try {
     $stmt = $pdo->prepare("
-        INSERT INTO users (username, email, password_hash)
-        VALUES (?, ?, ?)
+        INSERT INTO users (username, email, firstName, lastName, password_hash)
+        VALUES (?, ?, ?, ?, ?)
     ");
 
-    $stmt->execute([$username, $email, $password_hash]);
+    $stmt->execute([$username, $email, $firstName, $lastName, $password_hash]);
 
     // auto-login after register
     $user_id = $pdo->lastInsertId();
