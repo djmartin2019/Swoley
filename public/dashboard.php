@@ -1,4 +1,12 @@
-<?php require __DIR__ . '/../src/bootstrap.php'; ?>
+<?php
+require __DIR__ . '/../src/bootstrap.php';
+require_login();
+
+$title = "Dashboard";
+
+// Start output buffering
+ob_start();
+?>
 
 <?php
 /* ── Sample data — replace with real DB queries when ready ── */
@@ -58,135 +66,125 @@ $personal_records = [
 ];
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Swoley — Dashboard</title>
-    <link rel="stylesheet" href="/styles/style.css">
-</head>
-<body>
-    <?php include __DIR__ . '/../views/components/navbar.php'; ?>
+<div class="dashboard container">
 
-    <main class="dashboard container">
-
-        <!-- Welcome -->
-        <div class="dash-welcome">
-            <div>
-                <h1 class="dash-welcome__heading">Welcome back, <?= htmlspecialchars($user['first_name']) ?>.</h1>
-                <p class="dash-welcome__sub">You're on a roll. Keep stacking those plates.</p>
-            </div>
-            <a href="/workout.php" class="btn btn--primary">+ Log Workout</a>
+    <!-- Welcome -->
+    <div class="dash-welcome">
+        <div>
+            <h1 class="dash-welcome__heading">Welcome back, <?= htmlspecialchars($user['first_name']) ?>.</h1>
+            <p class="dash-welcome__sub">You're on a roll. Keep stacking those plates.</p>
         </div>
+        <a href="/workout.php" class="btn btn--primary">+ Log Workout</a>
+    </div>
 
-        <!-- Stats Row -->
-        <div class="dash-stats">
-            <?php foreach ($stats as $stat): ?>
-            <div class="stat-card">
-                <span class="stat-card__value"><?= htmlspecialchars($stat['value']) ?></span>
-                <span class="stat-card__label"><?= htmlspecialchars($stat['label']) ?></span>
-            </div>
-            <?php endforeach; ?>
+    <!-- Stats Row -->
+    <div class="dash-stats">
+        <?php foreach ($stats as $stat): ?>
+        <div class="stat-card">
+            <span class="stat-card__value"><?= htmlspecialchars($stat['value']) ?></span>
+            <span class="stat-card__label"><?= htmlspecialchars($stat['label']) ?></span>
         </div>
+        <?php endforeach; ?>
+    </div>
 
-        <!-- Main grid: recent workouts + sidebar -->
-        <div class="dash-grid">
+    <!-- Main grid: recent workouts + sidebar -->
+    <div class="dash-grid">
 
-            <!-- Recent Workouts -->
+        <!-- Recent Workouts -->
+        <section class="dash-section">
+            <div class="dash-section__header">
+                <h2 class="dash-section__title">Recent Workouts</h2>
+                <a href="/workout.php" class="dash-section__link">View all &rarr;</a>
+            </div>
+
+            <div class="workout-list">
+                <?php foreach ($recent_workouts as $workout): ?>
+                <div class="workout-card">
+                    <div class="workout-card__header">
+                        <div>
+                            <h3 class="workout-card__title"><?= htmlspecialchars($workout['title']) ?></h3>
+                            <p class="workout-card__meta">
+                                <?= date('M j, Y', strtotime($workout['workout_date'])) ?>
+                                &middot;
+                                <?= (int)$workout['duration_minutes'] ?> min
+                                &middot;
+                                <?= count($workout['exercises']) ?> exercises
+                            </p>
+                        </div>
+                        <a href="/workout.php?id=<?= (int)$workout['id'] ?>" class="workout-card__btn">View</a>
+                    </div>
+
+                    <div class="exercise-table-wrap">
+                        <table class="exercise-table">
+                            <thead>
+                                <tr>
+                                    <th>Exercise</th>
+                                    <th>Sets</th>
+                                    <th>Best Set</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($workout['exercises'] as $ex): ?>
+                                <?php
+                                    $best = array_reduce($ex['sets'], function($carry, $s) {
+                                        return ($carry === null || $s['weight'] > $carry['weight']) ? $s : $carry;
+                                    }, null);
+                                ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($ex['name']) ?></td>
+                                    <td><?= count($ex['sets']) ?></td>
+                                    <td>
+                                        <?php if ($best['weight'] > 0): ?>
+                                            <?= $best['reps'] ?> &times; <?= $best['weight'] ?> lb
+                                        <?php else: ?>
+                                            <?= $best['reps'] ?> reps (BW)
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+        </section>
+
+        <!-- Sidebar -->
+        <aside class="dash-sidebar">
+
+            <!-- Personal Records -->
             <section class="dash-section">
                 <div class="dash-section__header">
-                    <h2 class="dash-section__title">Recent Workouts</h2>
-                    <a href="/workout.php" class="dash-section__link">View all &rarr;</a>
+                    <h2 class="dash-section__title">Personal Records</h2>
                 </div>
-
-                <div class="workout-list">
-                    <?php foreach ($recent_workouts as $workout): ?>
-                    <div class="workout-card">
-                        <div class="workout-card__header">
-                            <div>
-                                <h3 class="workout-card__title"><?= htmlspecialchars($workout['title']) ?></h3>
-                                <p class="workout-card__meta">
-                                    <?= date('M j, Y', strtotime($workout['workout_date'])) ?>
-                                    &middot;
-                                    <?= (int)$workout['duration_minutes'] ?> min
-                                    &middot;
-                                    <?= count($workout['exercises']) ?> exercises
-                                </p>
-                            </div>
-                            <a href="/workout.php?id=<?= (int)$workout['id'] ?>" class="workout-card__btn">View</a>
+                <ul class="pr-list">
+                    <?php foreach ($personal_records as $pr): ?>
+                    <li class="pr-item">
+                        <div class="pr-item__left">
+                            <span class="pr-item__exercise"><?= htmlspecialchars($pr['exercise']) ?></span>
+                            <span class="pr-item__date"><?= date('M j', strtotime($pr['date'])) ?></span>
                         </div>
-
-                        <div class="exercise-table-wrap">
-                            <table class="exercise-table">
-                                <thead>
-                                    <tr>
-                                        <th>Exercise</th>
-                                        <th>Sets</th>
-                                        <th>Best Set</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($workout['exercises'] as $ex): ?>
-                                    <?php
-                                        $best = array_reduce($ex['sets'], function($carry, $s) {
-                                            return ($carry === null || $s['weight'] > $carry['weight']) ? $s : $carry;
-                                        }, null);
-                                    ?>
-                                    <tr>
-                                        <td><?= htmlspecialchars($ex['name']) ?></td>
-                                        <td><?= count($ex['sets']) ?></td>
-                                        <td>
-                                            <?php if ($best['weight'] > 0): ?>
-                                                <?= $best['reps'] ?> &times; <?= $best['weight'] ?> lb
-                                            <?php else: ?>
-                                                <?= $best['reps'] ?> reps (BW)
-                                            <?php endif; ?>
-                                        </td>
-                                    </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                        <span class="pr-item__weight"><?= $pr['weight'] ?> <small>lb</small></span>
+                    </li>
                     <?php endforeach; ?>
-                </div>
+                </ul>
             </section>
 
-            <!-- Sidebar -->
-            <aside class="dash-sidebar">
+            <!-- Quick Log CTA -->
+            <section class="quick-log-card">
+                <div class="quick-log-card__icon">🏋️</div>
+                <h3>Ready to train?</h3>
+                <p>Log today's session and keep the streak alive.</p>
+                <a href="/workout.php" class="btn btn--primary" style="width:100%; text-align:center;">Start Workout</a>
+            </section>
 
-                <!-- Personal Records -->
-                <section class="dash-section">
-                    <div class="dash-section__header">
-                        <h2 class="dash-section__title">Personal Records</h2>
-                    </div>
-                    <ul class="pr-list">
-                        <?php foreach ($personal_records as $pr): ?>
-                        <li class="pr-item">
-                            <div class="pr-item__left">
-                                <span class="pr-item__exercise"><?= htmlspecialchars($pr['exercise']) ?></span>
-                                <span class="pr-item__date"><?= date('M j', strtotime($pr['date'])) ?></span>
-                            </div>
-                            <span class="pr-item__weight"><?= $pr['weight'] ?> <small>lb</small></span>
-                        </li>
-                        <?php endforeach; ?>
-                    </ul>
-                </section>
+        </aside>
+    </div>
 
-                <!-- Quick Log CTA -->
-                <section class="quick-log-card">
-                    <div class="quick-log-card__icon">🏋️</div>
-                    <h3>Ready to train?</h3>
-                    <p>Log today's session and keep the streak alive.</p>
-                    <a href="/workout.php" class="btn btn--primary" style="width:100%; text-align:center;">Start Workout</a>
-                </section>
+</div>
 
-            </aside>
-        </div>
+<?php
+$content = ob_get_clean();
+include __DIR__ . '/../views/layout.php';
 
-    </main>
-
-    <script src="/js/navbar.js"></script>
-</body>
-</html>
