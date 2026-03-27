@@ -1,3 +1,5 @@
+<?php require_once __DIR__ . '/../../src/auth.php'; ?>
+
 <header class="navbar" role="banner">
     <div class="navbar__container">
         <a href="index.php" class="navbar__brand">Swoley</a>
