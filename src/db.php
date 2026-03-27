@@ -1,22 +1,30 @@
 <?php
 
-$host = 'db';   // Docker service name
-$port = '5432';
-$dbname = 'swoley_db';
-$user = 'postgres';
-$password = 'password';
+function get_db() {
+    static $pdo;
 
-$dsn = "pgsql:host=$host;port=$port;dbname=$dbname;";
+    if ($pdo === null) {
+        $host = 'db';   // Docker service name
+        $port = '5432';
+        $dbname = 'swoley_db';
+        $user = 'postgres';
+        $password = 'password';
 
-try {
-    $pdo = new PDO($dsn, $user, $password);
+        $dsn = "pgsql:host=$host;port=$port;dbname=$dbname;";
 
-    // Throw exceptions on error
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        try {
+            $pdo = new PDO($dsn, $user, $password);
 
-    // Return associative arrays
-    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+            // Error handling
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-} catch (PDOException $e) {
-    die("DB connection failed: " . $e->getMessage());
+            // Fetch as associative arrays
+            $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+
+        } catch (PDOException $e) {
+            die("DB connection failed: " . $e->getMessage());
+        }
+    }
+
+    return $pdo;
 }

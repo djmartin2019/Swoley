@@ -1,8 +1,6 @@
-<?php require_once __DIR__ . '/../../src/auth.php'; ?>
-
 <header class="navbar" role="banner">
     <div class="navbar__container">
-        <a href="index.php" class="navbar__brand">Swoley</a>
+        <a href="/" class="navbar__brand">Swoley</a>
         <button class="navbar__toggle" id="navbarToggle" aria-label="Toggle navigation" aria-controls="navbarMenu" aria-expanded="false">
             <span class="bar"></span>
             <span class="bar"></span>
@@ -23,7 +21,7 @@
                 <li class="navbar__item"><a href="about.php" class="navbar__link">About</a></li>
                 <li class="navbar__item"><a href="contact.php" class="navbar__link">Contact</a></li>
                 <li class="navbar__item navbar__item--cta">
-                    <a href="login.php" class="navbar__link navbar__link--cta">Login</a>
+                    <a href="/login" class="navbar__link navbar__link--cta">Login</a>
                 </li>
                 <li class="navbar__item navbar__item--cta">
                     <a href="register.php" class="navbar__link navbar__link--cta">Register</a>

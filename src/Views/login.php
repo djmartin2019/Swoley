@@ -1,13 +1,7 @@
-<?php require __DIR__ . '/../src/bootstrap.php';
-
-$title = "Login";
-
-ob_start();
-?>
 <div class="container">
 <h1>Login Page</h1>
     <div class="form__container">
-    <form method="POST" action="/actions/login_handler.php">
+    <form method="POST" action="/login">
         <div>
             <label for="username">Username:</label>
             <input type="text" id="username" name="username" required>
@@ -23,8 +17,9 @@ ob_start();
         <a href="forgot_password.php">Forgot Password</a>
     </div>
     </div>
+    <?php if (!empty($error)): ?>
+        <div class="form-errors">
+            <?=htmlspecialchars($error) ?>
+        </div>
+    <?php endif; ?>
 </div>
-
-<?php
-$content = ob_get_clean();
-include __DIR__ . '/../views/layout.php';

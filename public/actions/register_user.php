@@ -3,6 +3,8 @@
 require __DIR__ . '/../../src/db.php';
 require __DIR__ . '/../../src/auth.php';
 
+$pdo = get_db();
+
 $username = $_POST['username'];
 $email = $_POST['email'];
 $firstName = $_POST['first_name'];

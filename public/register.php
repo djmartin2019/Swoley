@@ -43,4 +43,5 @@ ob_start();
 
 <?php
 $content = ob_get_clean();
-include __DIR__ . '/../views/layout.php';
+include __DIR__ . '/../src/Views/layout.php';
+
