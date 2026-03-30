@@ -1,11 +1,3 @@
-<?php
-require __DIR__ . '/../src/bootstrap.php';
-
-$title = "About";
-
-ob_start();
-?>
-
 <!-- Page hero -->
 <section class="about-hero">
     <div class="about-hero__inner container">
@@ -178,7 +170,3 @@ ob_start();
     </div>
     <div class="cta-band__glow" aria-hidden="true"></div>
 </section>
-
-<?php
-$content = ob_get_clean();
-include __DIR__ . '/../src/Views/layout.php';

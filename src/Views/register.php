@@ -1,15 +1,7 @@
-<?php require __DIR__ . '/../src/bootstrap.php';
-
-$title = "Register";
-
-ob_start();
-?>
-
-
 <div class="container">
 <h1>Register</h1>
     <div class="form__container">
-    <form action="/actions/register_user.php" method="post">
+    <form action="/register" method="post">
         <div>
             <h3>Your Information</h3>
             <div>
@@ -40,8 +32,3 @@ ob_start();
     </form>
     </div>
 </div>
-
-<?php
-$content = ob_get_clean();
-include __DIR__ . '/../src/Views/layout.php';
-

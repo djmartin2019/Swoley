@@ -1,10 +1,3 @@
-<?php require __DIR__ . '/../src/bootstrap.php';
-
-$title = "Forgot Password";
-
-ob_start();
-?>
-
 <div class="container">
     <h1>Forgot Password</h1>
     <div class="form__container">
@@ -17,8 +10,3 @@ ob_start();
     </form>
     </div>
 </div>
-
-<?php
-$content = ob_get_clean();
-include __DIR__ . '/../src/Views/layout.php';
-

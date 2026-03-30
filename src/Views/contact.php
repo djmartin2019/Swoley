@@ -1,33 +1,3 @@
-<?php
-require __DIR__ . '/../src/bootstrap.php';
-
-$title = "Contact";
-
-ob_start();
-?>
-
-<?php
-$success = false;
-$errors  = [];
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name    = trim($_POST['name']    ?? '');
-    $email   = trim($_POST['email']   ?? '');
-    $subject = trim($_POST['subject'] ?? '');
-    $message = trim($_POST['message'] ?? '');
-
-    if ($name === '')    $errors[] = 'Name is required.';
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'A valid email is required.';
-    if ($subject === '') $errors[] = 'Subject is required.';
-    if (strlen($message) < 10) $errors[] = 'Message must be at least 10 characters.';
-
-    if (empty($errors)) {
-        /* Mail sending goes here when ready */
-        $success = true;
-    }
-}
-?>
-
 <div class="contact-page container">
 
     <!-- Left: copy + info -->
@@ -131,7 +101,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
 </div>
-
-<?php
-$content = ob_get_clean();
-include __DIR__ . '/../src/Views/layout.php';

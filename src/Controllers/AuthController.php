@@ -1,24 +1,21 @@
 <?php
 
-class AuthController
+require_once __DIR__ . '/../Core/BaseController.php';
+
+class AuthController extends BaseController
 {
     public function showLogin()
     {
-        global $loggedIn;
+        $this->render('login', ['title' => 'Login']);
+    }
 
-        $title = "Login";
-
-        ob_start();
-        require __DIR__ . '/../Views/login.php';
-        $content = ob_get_clean();
-
-        require __DIR__ . '/../Views/layout.php';
+    public function showRegister()
+    {
+        $this->render('register', ['title' => 'Register']);
     }
 
     public function login()
     {
-        global $loggedIn;
-
         $pdo = get_db();
 
         $username = $_POST['username'];
@@ -39,5 +36,52 @@ class AuthController
         } else {
             echo "Invalid Credentials";
         }
+    }
+
+    public function register()
+    {
+        $pdo = get_db();
+
+        $username = $_POST['username'];
+        $email = $_POST['email'];
+        $firstName = $_POST['first_name'];
+        $lastName = $_POST['last_name'];
+        $password = $_POST['password'];
+
+        if (empty($username) || empty($email) || empty($password)) {
+            die("Username, email, and password are required");
+            exit;
+        }
+
+        $password_hash = password_hash($password, PASSWORD_DEFAULT);
+
+        try {
+            $stmt = $pdo->prepare("
+                INSERT INTO users (username, email, firstName, lastName, password_hash)
+                VALUES (?, ?, ?, ?, ?)
+            ");
+
+            $stmt->execute([$username, $email, $firstName, $lastName, $password_hash]);
+
+            // auto-login after register
+            $user_id = $pdo->lastInsertId();
+
+            login([
+                'id' => $user_id,
+                'email' => $email
+            ]);
+
+            header("Location: /dashboard");
+            exit;
+        } catch (PDOException $e) {
+            echo "Username or email already exists";
+        }
+    }
+
+    public function logout()
+    {
+        logout();
+        header("Location: /");
+        exit;
     }
 }

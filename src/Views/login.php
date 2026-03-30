@@ -13,8 +13,8 @@
         <button type="submit">Login</button>
     </form>
     <div>
-        <a href="register.php">Register</a>
-        <a href="forgot_password.php">Forgot Password</a>
+        <a href="/register">Register</a>
+        <a href="/forgot-password">Forgot Password</a>
     </div>
     </div>
     <?php if (!empty($error)): ?>
