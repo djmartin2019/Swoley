@@ -32,14 +32,14 @@ The codebase is intentionally lean: PHP 8.3 backend, PostgreSQL database, Apache
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Backend | PHP 8.3 |
-| Database | PostgreSQL 16 |
-| Web Server | Apache 2.4 |
+| Layer          | Technology              |
+| -------------- | ----------------------- |
+| Backend        | PHP 8.3                 |
+| Database       | PostgreSQL 16           |
+| Web Server     | Apache 2.4              |
 | Infrastructure | Docker + Docker Compose |
-| Frontend | HTML5, CSS3 (vanilla) |
-| PHP Extensions | `pdo`, `pdo_pgsql` |
+| Frontend       | HTML5, CSS3 (vanilla)   |
+| PHP Extensions | `pdo`, `pdo_pgsql`      |
 
 ---
 
@@ -68,31 +68,31 @@ src/Views/                ← views: HTML templates, no logic, no DB access
 
 ### Core Layer (`src/Core/`)
 
-| File | Responsibility |
-|---|---|
-| `Database.php` | PDO singleton — one connection per request |
-| `Model.php` | Abstract base class — provides `db()` to all models |
+| File                 | Responsibility                                                                   |
+| -------------------- | -------------------------------------------------------------------------------- |
+| `Database.php`       | PDO singleton — one connection per request                                       |
+| `Model.php`          | Abstract base class — provides `db()` to all models                              |
 | `BaseController.php` | `render($view, $data)` — output buffering, shared auth injection, layout loading |
 
 ### Controllers (`src/Controllers/`)
 
-| Controller | Routes |
-|---|---|
-| `HomeController` | `GET /`, `GET /about`, `GET /contact` |
-| `AuthController` | `GET/POST /login`, `GET/POST /register`, `POST /logout`, `GET/POST /forgot-password` |
-| `DashboardController` | `GET /dashboard` |
-| `WorkoutController` | `GET /workout/{id}`, `POST /workout`, `POST /workout/{id}/exercise`, `POST /workout/{id}/set` *(in progress)* |
+| Controller            | Routes                                                                                                        |
+| --------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `HomeController`      | `GET /`, `GET /about`, `GET /contact`                                                                         |
+| `AuthController`      | `GET/POST /login`, `GET/POST /register`, `POST /logout`, `GET/POST /forgot-password`                          |
+| `DashboardController` | `GET /dashboard`                                                                                              |
+| `WorkoutController`   | `GET /workout/{id}`, `POST /workout`, `POST /workout/{id}/exercise`, `POST /workout/{id}/set` _(in progress)_ |
 
 ### Models (`src/Models/`)
 
 Each model owns all SQL for its table. Controllers call model methods — no raw queries outside of models.
 
-| Model | Table | Key Methods |
-|---|---|---|
-| `User` | `users` | `findByUsername`, `findById`, `create` |
-| `Workout` | `workouts` | `findForUser`, `allForUser`, `create` |
+| Model      | Table       | Key Methods                              |
+| ---------- | ----------- | ---------------------------------------- |
+| `User`     | `users`     | `findByUsername`, `findById`, `create`   |
+| `Workout`  | `workouts`  | `findForUser`, `allForUser`, `create`    |
 | `Exercise` | `exercises` | `findByWorkout`, `findForUser`, `create` |
-| `Set` | `sets` | `findByExercises`, `create` |
+| `Set`      | `sets`      | `findByExercises`, `create`              |
 
 ---
 
@@ -166,12 +166,12 @@ users
            └── sets      (exercise_id → exercises.id)
 ```
 
-| Table | Key Columns |
-|---|---|
-| `users` | `id`, `username`, `email`, `first_name`, `last_name`, `password_hash`, `created_at` |
-| `workouts` | `id`, `user_id`, `title`, `workout_date`, `duration_minutes`, `created_at` |
-| `exercises` | `id`, `workout_id`, `name` |
-| `sets` | `id`, `exercise_id`, `reps`, `weight` |
+| Table       | Key Columns                                                                         |
+| ----------- | ----------------------------------------------------------------------------------- |
+| `users`     | `id`, `username`, `email`, `first_name`, `last_name`, `password_hash`, `created_at` |
+| `workouts`  | `id`, `user_id`, `title`, `workout_date`, `duration_minutes`, `created_at`          |
+| `exercises` | `id`, `workout_id`, `name`                                                          |
+| `sets`      | `id`, `exercise_id`, `reps`, `weight`                                               |
 
 ---
 
@@ -185,7 +185,7 @@ users
 
 ```bash
 # 1. Clone the repo
-git clone <your-repo-url>
+git clone https://github.com/djmartin2019/Swoley.git
 cd swoley
 
 # 2. Build and start all services
@@ -209,12 +209,12 @@ docker compose down -v
 
 ### Default Local DB Credentials
 
-| Setting | Value |
-|---|---|
-| Host | `db` (internal Docker network) |
-| Database | `swoley_db` |
-| User | `postgres` |
-| Password | `password` |
+| Setting  | Value                          |
+| -------- | ------------------------------ |
+| Host     | `db` (internal Docker network) |
+| Database | `swoley_db`                    |
+| User     | `postgres`                     |
+| Password | `password`                     |
 
 > **Note:** Change these credentials before any non-local deployment.
 
@@ -223,6 +223,7 @@ docker compose down -v
 ## Roadmap
 
 ### Shipped
+
 - [x] Custom MVC architecture — front controller, base controller, model layer
 - [x] User registration, login, logout, and password reset flows
 - [x] Workout creation with exercises and sets
@@ -232,11 +233,13 @@ docker compose down -v
 - [x] `User`, `Workout`, `Exercise`, `Set` models with typed static methods
 
 ### In Progress
+
 - [ ] `WorkoutController` — migrate `workout.php` and action handlers to MVC
 - [ ] Live DB queries wired to dashboard stats and recent workouts
 - [ ] Auth session guard on all protected routes via `require_login()`
 
 ### Planned
+
 - [ ] Services layer for complex operations (PR calculation, workout templates)
 - [ ] Progress charts — volume load by week/month
 - [ ] Estimated 1RM tracking over time
