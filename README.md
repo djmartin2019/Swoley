@@ -13,9 +13,9 @@
 
 ## Overview
 
-Swoley is a server-rendered PHP web application that helps lifters record and review their training. The goal is zero friction at the point of logging — get in, log the session, get out. Over time, the accumulated data becomes a clear picture of progress.
+Swoley is a server-rendered PHP web application built on a hand-rolled MVC architecture — no frameworks, no magic. Lifters can log training sessions, track exercises and sets, and review their history through a personal dashboard.
 
-The app is containerized with Docker for easy local development and deployment, backed by PostgreSQL, and served via Apache with no JavaScript framework overhead.
+The codebase is intentionally lean: PHP 8.3 backend, PostgreSQL database, Apache server, vanilla HTML/CSS, all containerized with Docker. The goal is zero friction at the point of logging — get in, record the session, get out.
 
 ---
 
@@ -26,7 +26,7 @@ The app is containerized with Docker for easy local development and deployment, 
 - **Exercise tracking** — Add exercises to any workout with full set/rep/weight history
 - **Personal dashboard** — At-a-glance stats, recent workouts, and personal records
 - **Responsive UI** — Mobile-first design with a neon-orange cyberpunk theme
-- **Secure auth** — Password hashing via PHP's `password_hash`, session-based authentication
+- **Secure auth** — `password_hash` / `password_verify`, session-based authentication, ownership-checked DB queries
 
 ---
 
@@ -43,50 +43,116 @@ The app is containerized with Docker for easy local development and deployment, 
 
 ---
 
+## Architecture
+
+Swoley uses a hand-built MVC pattern with a single front controller (`public/index.php`) that routes all requests to the appropriate controller.
+
+```
+Request
+   │
+   ▼
+public/index.php          ← front controller: parses URI, dispatches to controller
+   │
+   ▼
+src/Controllers/          ← controllers: handle request, prepare data, call render()
+   │           │
+   │           ▼
+   │        src/Models/   ← models: all SQL lives here, one class per table
+   │
+   ▼
+src/Core/BaseController   ← render(): merges shared data, buffers view, loads layout
+   │
+   ▼
+src/Views/                ← views: HTML templates, no logic, no DB access
+```
+
+### Core Layer (`src/Core/`)
+
+| File | Responsibility |
+|---|---|
+| `Database.php` | PDO singleton — one connection per request |
+| `Model.php` | Abstract base class — provides `db()` to all models |
+| `BaseController.php` | `render($view, $data)` — output buffering, shared auth injection, layout loading |
+
+### Controllers (`src/Controllers/`)
+
+| Controller | Routes |
+|---|---|
+| `HomeController` | `GET /`, `GET /about`, `GET /contact` |
+| `AuthController` | `GET/POST /login`, `GET/POST /register`, `POST /logout`, `GET/POST /forgot-password` |
+| `DashboardController` | `GET /dashboard` |
+| `WorkoutController` | `GET /workout/{id}`, `POST /workout`, `POST /workout/{id}/exercise`, `POST /workout/{id}/set` *(in progress)* |
+
+### Models (`src/Models/`)
+
+Each model owns all SQL for its table. Controllers call model methods — no raw queries outside of models.
+
+| Model | Table | Key Methods |
+|---|---|---|
+| `User` | `users` | `findByUsername`, `findById`, `create` |
+| `Workout` | `workouts` | `findForUser`, `allForUser`, `create` |
+| `Exercise` | `exercises` | `findByWorkout`, `findForUser`, `create` |
+| `Set` | `sets` | `findByExercises`, `create` |
+
+---
+
 ## Project Structure
 
 ```text
 swoley/
 ├── Dockerfile
 ├── docker-compose.yml
-├── LICENSE
+├── schema/
+│   └── schema.sql              # Database schema (auto-applied on first run)
 │
 ├── public/                     # Apache document root
-│   ├── index.php               # Landing page
-│   ├── about.php
-│   ├── contact.php
-│   ├── login.php
-│   ├── register.php
-│   ├── forgot-password.php
-│   ├── dashboard.php
-│   ├── workout.php
+│   ├── index.php               # Front controller — all requests route through here
+│   ├── workout.php             # Workout page (pending MVC migration)
 │   ├── styles/
 │   │   └── style.css
 │   ├── js/
 │   │   └── navbar.js
-│   └── actions/                # Form handlers (POST endpoints)
-│       ├── login_handler.php
-│       ├── logout.php
-│       ├── register_user.php
-│       ├── password_reset.php
-│       └── create_workout.php
+│   └── actions/                # Legacy POST handlers (pending migration)
+│       ├── add_workout.php
+│       ├── add_exercise.php
+│       └── add_set.php
 │
-├── src/                        # Application core
-│   ├── bootstrap.php           # Environment setup & session init
-│   ├── db.php                  # PDO connection factory
-│   ├── auth.php                # Auth helpers
-│   └── models/
-│       ├── User.php
-│       ├── Workout.php
-│       └── Exercise.php
-│
-├── views/
-│   └── components/
-│       ├── navbar.php
-│       └── footer.php
-│
-└── schema/
-    └── schema.sql              # Database bootstrap
+└── src/                        # Application source
+    ├── bootstrap.php           # Requires auth + db helpers
+    ├── auth.php                # Session helpers (login, logout, require_login, etc.)
+    ├── db.php                  # Legacy PDO factory (get_db)
+    │
+    ├── Core/
+    │   ├── Database.php        # OOP PDO singleton
+    │   ├── Model.php           # Abstract base model
+    │   └── BaseController.php  # Base controller with render()
+    │
+    ├── Controllers/
+    │   ├── HomeController.php
+    │   ├── AuthController.php
+    │   ├── DashboardController.php
+    │   └── WorkoutController.php
+    │
+    ├── Models/
+    │   ├── User.php
+    │   ├── Workout.php
+    │   ├── Exercise.php
+    │   └── Set.php
+    │
+    └── Views/
+        ├── layout.php          # HTML shell (head, navbar, footer)
+        ├── home.php
+        ├── about.php
+        ├── contact.php
+        ├── login.php
+        ├── register.php
+        ├── forgot-password.php
+        ├── dashboard.php
+        ├── workouts/
+        │   └── show.php
+        └── components/
+            ├── navbar.php
+            └── footer.php
 ```
 
 ---
@@ -157,18 +223,21 @@ docker compose down -v
 ## Roadmap
 
 ### Shipped
-- [x] User registration, login, logout, and password reset
+- [x] Custom MVC architecture — front controller, base controller, model layer
+- [x] User registration, login, logout, and password reset flows
 - [x] Workout creation with exercises and sets
-- [x] Responsive landing page, about, contact, and dashboard pages
+- [x] Responsive landing page, about, contact, and dashboard
 - [x] Mobile-first navbar with hamburger menu
-- [x] Personal records display on dashboard
+- [x] `Database` / `Model` / `BaseController` core classes
+- [x] `User`, `Workout`, `Exercise`, `Set` models with typed static methods
 
 ### In Progress
+- [ ] `WorkoutController` — migrate `workout.php` and action handlers to MVC
 - [ ] Live DB queries wired to dashboard stats and recent workouts
-- [ ] Workout detail and edit views
-- [ ] Full auth session guard on protected routes
+- [ ] Auth session guard on all protected routes via `require_login()`
 
 ### Planned
+- [ ] Services layer for complex operations (PR calculation, workout templates)
 - [ ] Progress charts — volume load by week/month
 - [ ] Estimated 1RM tracking over time
 - [ ] Plateau detection and trend analysis
@@ -179,10 +248,11 @@ docker compose down -v
 
 ## Development Notes
 
-- Apache document root is set to `public/` via `ENV APACHE_DOCUMENT_ROOT` in the `Dockerfile`
-- Code is bind-mounted into the app container (`./:/var/www/html`) so edits are reflected immediately without rebuilding
-- `mod_rewrite` is enabled in Apache for future clean URL support
-- PHP extensions `pdo` and `pdo_pgsql` are installed at build time
+- Apache document root is `public/` — set via `ENV APACHE_DOCUMENT_ROOT` in the `Dockerfile`
+- `mod_rewrite` is enabled and `AllowOverride All` is set so `.htaccess` rewrites all requests through `public/index.php`
+- Code is bind-mounted into the container (`./:/var/www/html`) so edits are reflected immediately without rebuilding
+- PHP extensions `pdo` and `pdo_pgsql` are installed at image build time
+- `src/db.php` and `src/auth.php` are functional helpers kept alongside the OOP layer during the MVC migration; `Database.php` is the long-term home for the PDO connection
 
 ---
 
