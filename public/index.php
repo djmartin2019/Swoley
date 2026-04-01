@@ -1,7 +1,15 @@
 <?php
 
-require __DIR__ . '/../src/bootstrap.php';
+require __DIR__ . '/../src/Core/Database.php';
+require __DIR__ . '/../src/Core/Model.php';
+require __DIR__ . '/../src/Models/User.php';
+require __DIR__ . '/../src/Models/Workout.php';
+require __DIR__ . '/../src/Models/Exercise.php';
+require __DIR__ . '/../src/Models/Set.php';
 require __DIR__ . '/../src/Core/BaseController.php';
+
+require __DIR__ . '/../src/bootstrap.php';
+
 require __DIR__ . '/../src/Controllers/HomeController.php';
 require __DIR__ . '/../src/Controllers/AuthController.php';
 require __DIR__ . '/../src/Controllers/DashboardController.php';

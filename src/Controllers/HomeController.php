@@ -16,8 +16,6 @@ class HomeController extends BaseController
 
     public function contact()
     {
-        $this->render('contact', ['title' => 'Contact']);
-
         $success = false;
         $errors  = [];
 
@@ -37,5 +35,11 @@ class HomeController extends BaseController
                 $success = true;
             }
         }
+
+        $this->render('contact', [
+            'title'   => 'Contact',
+            'success' => $success,
+            'errors'  => $errors,
+        ]);
     }
 }

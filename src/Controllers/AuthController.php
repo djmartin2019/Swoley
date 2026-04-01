@@ -16,18 +16,7 @@ class AuthController extends BaseController
 
     public function login()
     {
-        $pdo = get_db();
-
-        $username = $_POST['username'];
-        $password = $_POST['password'];
-
-        if (empty($username) || empty($password)) {
-            die("All fields required");
-        }
-
-        $stmt = $pdo->prepare("SELECT * FROM users WHERE username = :username");
-        $stmt->execute(['username' => $username]);
-        $user = $stmt->fetch();
+        $user = User::findByUsername($_POST['username']);
 
         if ($user && password_verify($password, $user['password_hash'])) {
             login($user);
@@ -40,8 +29,6 @@ class AuthController extends BaseController
 
     public function register()
     {
-        $pdo = get_db();
-
         $username = $_POST['username'];
         $email = $_POST['email'];
         $firstName = $_POST['first_name'];
@@ -56,21 +43,8 @@ class AuthController extends BaseController
         $password_hash = password_hash($password, PASSWORD_DEFAULT);
 
         try {
-            $stmt = $pdo->prepare("
-                INSERT INTO users (username, email, firstName, lastName, password_hash)
-                VALUES (?, ?, ?, ?, ?)
-            ");
-
-            $stmt->execute([$username, $email, $firstName, $lastName, $password_hash]);
-
-            // auto-login after register
-            $user_id = $pdo->lastInsertId();
-
-            login([
-                'id' => $user_id,
-                'email' => $email
-            ]);
-
+            $userId = User::create($username, $email, $firstName, $lastName, $passwordHash);
+            login(['id' => $userId, 'email' => $email]);
             header("Location: /dashboard");
             exit;
         } catch (PDOException $e) {
